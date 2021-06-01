@@ -3,9 +3,10 @@ from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 import os
 
+DIR = "/Users/ronybot/Downloads/"
 
 class OnMyWatch:
-    watchDir = "/Users/ronybot/Downloads"
+    watchDir = DIR
 
     def __init__(self):
         self.observer = Observer()
@@ -30,20 +31,24 @@ class Handler(FileSystemEventHandler):
     @staticmethod
     def on_created(event):
 
-        destination_dict = {}
-
-        for file in os.listdir("/Users/ronybot/Downloads"):
-            if os.path.isdir("/Users/ronybot/Downloads/" + file):
-                destination_dict["."+file] = "/Users/ronybot/Downloads/"+file
-
         if event.is_directory:
             return None
+
+        if os.path.splitext(event.src_path)[0].split("/")[-1] == ".DS_Store":
+            return None
+
         print("Watchdog received created event - % s." % event.src_path)
+
+        destination_dict = {}
+
+        for file in os.listdir(DIR):
+            if os.path.isdir(DIR + file):
+                destination_dict["." + file] = DIR + file
 
         ext = os.path.splitext(event.src_path)[-1]
 
         if ext not in destination_dict:
-            path = "/Users/ronybot/Downloads/"+ext[1:]
+            path = DIR+ext[1:]
             os.mkdir(path)
             destination_dict[ext] = path
 
